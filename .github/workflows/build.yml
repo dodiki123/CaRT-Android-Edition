@@ -3,7 +3,7 @@ name: Build APK
 on:
   push:
     branches:
-      - master  # или 'main' — укажи актуальную ветку, если нужно
+      - master  # или 'main', если у тебя другая ветка
 
 jobs:
   build:
@@ -27,39 +27,40 @@ jobs:
 
       - name: Install Android SDK and AIDL
         run: |
-          # Устанавливаем Android SDK в домашнюю директорию
           mkdir -p "$HOME/android-sdk/cmdline-tools"
           cd "$HOME/android-sdk"
-          
-          # Скачиваем и распаковываем командные инструменты SDK
+
+          # Скачиваем SDK
           wget https://dl.google.com/android/repository/commandlinetools-linux-8512546_latest.zip -O cmdline-tools.zip
-          unzip cmdline-tools.zip -d cmdline-tools
+          unzip cmdline-tools.zip -d cmdline-tools-temp
           rm cmdline-tools.zip
 
-          # Убедимся, что sdkmanager доступен
-          export PATH=$PATH:$HOME/android-sdk/cmdline-tools/bin
-          
-          # Проверим, доступен ли sdkmanager
-          ls -l "$HOME/android-sdk/cmdline-tools/bin"
-          ls -l "$HOME/android-sdk/cmdline-tools/bin/sdkmanager"
-          
-          # Установим необходимые пакеты через sdkmanager
-          yes | "$HOME/android-sdk/cmdline-tools/bin/sdkmanager" --sdk_root="$HOME/android-sdk" \
+          # Перемещаем SDK в нужную структуру
+          mkdir -p "$HOME/android-sdk/cmdline-tools/latest"
+          mv cmdline-tools-temp/cmdline-tools/* "$HOME/android-sdk/cmdline-tools/latest"
+          rm -rf cmdline-tools-temp
+
+          # Добавляем sdkmanager в PATH
+          export PATH=$PATH:$HOME/android-sdk/cmdline-tools/latest/bin
+
+          # Проверим, что sdkmanager доступен
+          ls -l "$HOME/android-sdk/cmdline-tools/latest/bin"
+
+          # Устанавливаем необходимые компоненты
+          yes | "$HOME/android-sdk/cmdline-tools/latest/bin/sdkmanager" --sdk_root="$HOME/android-sdk" \
             "platform-tools" "platforms;android-31" "build-tools;34.0.0" "tools"
 
       - name: Set environment variables
         run: |
           echo "ANDROID_HOME=$HOME/android-sdk" >> $GITHUB_ENV
-          echo "PATH=$PATH:$HOME/android-sdk/platform-tools:$HOME/android-sdk/cmdline-tools/bin" >> $GITHUB_ENV
+          echo "PATH=$PATH:$HOME/android-sdk/platform-tools:$HOME/android-sdk/cmdline-tools/latest/bin" >> $GITHUB_ENV
 
       - name: Build APK
         run: |
-          # Убедимся, что buildozer.spec уже существует
           if [ ! -f buildozer.spec ]; then
             buildozer init
           fi
 
-          # Обновим buildozer.spec, чтобы не было ошибок
           sed -i 's/^# *source.include_exts = .*/source.include_exts = py,png,jpg,kv,atlas/' buildozer.spec
           sed -i 's/^# *log_level = .*/log_level = 2/' buildozer.spec
           sed -i 's/^# *android.permissions = .*/android.permissions = INTERNET/' buildozer.spec

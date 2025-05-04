@@ -36,8 +36,14 @@ jobs:
           unzip cmdline-tools.zip -d cmdline-tools
           rm cmdline-tools.zip
 
-          # Убедимся, что SDK доступен через sdkmanager
+          # Убедимся, что sdkmanager доступен
           export PATH=$PATH:$HOME/android-sdk/cmdline-tools/bin
+          
+          # Проверим, доступен ли sdkmanager
+          ls -l "$HOME/android-sdk/cmdline-tools/bin"
+          ls -l "$HOME/android-sdk/cmdline-tools/bin/sdkmanager"
+          
+          # Установим необходимые пакеты через sdkmanager
           yes | "$HOME/android-sdk/cmdline-tools/bin/sdkmanager" --sdk_root="$HOME/android-sdk" \
             "platform-tools" "platforms;android-31" "build-tools;34.0.0" "tools"
 

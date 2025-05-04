@@ -25,41 +25,34 @@ jobs:
           pip install --upgrade pip
           pip install buildozer cython
 
-      - name: Install Android SDK and AIDL
+      - name: Install Android SDK
         run: |
-          # Устанавливаем Android SDK в домашнюю директорию
           mkdir -p "$HOME/android-sdk/cmdline-tools"
 
           cd "$HOME/android-sdk"
-
-          # Скачиваем и распаковываем командные инструменты SDK
           wget https://dl.google.com/android/repository/commandlinetools-linux-8512546_latest.zip -O cmdline-tools.zip
           unzip cmdline-tools.zip -d cmdline-tools-temp
           rm cmdline-tools.zip
 
-          # Переименовываем в нужную структуру
           mkdir -p "$HOME/android-sdk/cmdline-tools/latest"
           mv cmdline-tools-temp/cmdline-tools/* "$HOME/android-sdk/cmdline-tools/latest"
           rm -rf cmdline-tools-temp
 
-          # Обновляем PATH
-          export PATH=$PATH:$HOME/android-sdk/cmdline-tools/latest/bin
-          ls -l "$HOME/android-sdk/cmdline-tools/latest/bin/sdkmanager"  # Проверяем доступность sdkmanager
-
-          # Устанавливаем необходимые пакеты через sdkmanager
+          export PATH=$HOME/android-sdk/cmdline-tools/latest/bin:$PATH
           yes | "$HOME/android-sdk/cmdline-tools/latest/bin/sdkmanager" --sdk_root="$HOME/android-sdk" \
             "platform-tools" \
             "platforms;android-31" \
             "build-tools;34.0.0"
 
+      - name: 🔧 Fix sdkmanager path for Buildozer
+        run: |
+          mkdir -p "$HOME/android-sdk/tools"
+          ln -s "$HOME/android-sdk/cmdline-tools/latest" "$HOME/android-sdk/tools/bin"
+
       - name: Set environment variables
         run: |
           echo "ANDROID_HOME=$HOME/android-sdk" >> $GITHUB_ENV
-          echo "PATH=$PATH:$HOME/android-sdk/platform-tools:$HOME/android-sdk/cmdline-tools/latest/bin" >> $GITHUB_ENV
-
-      - name: Clean old buildozer data (optional but recommended)
-        run: |
-          rm -rf ~/.buildozer
+          echo "PATH=$PATH:$HOME/android-sdk/platform-tools:$HOME/android-sdk/tools/bin" >> $GITHUB_ENV
 
       - name: Link SDK to Buildozer expected path
         run: |
@@ -79,32 +72,11 @@ jobs:
           sed -i 's/^# *package.domain = .*/package.domain = org.example.cart/' buildozer.spec
           sed -i '/^requirements =/d' buildozer.spec
           echo "requirements = python3,kivy,kivymd" >> buildozer.spec
-          echo "android.sdk_path = /home/runner/android-sdk" >> buildozer.spec
-          echo "android.ndk_path = /home/runner/android-sdk/ndk-bundle" >> buildozer.spec
 
-          buildozer android debug --verbose || true
-
-      - name: Find APK file
-        run: |
-          find . -name "*.apk" || echo "APK not found."
-
-      - name: Force re-build APK if not found
-        run: |
-          if [ ! -f bin/*.apk ]; then
-            echo "APK not found, forcing rebuild..."
-            buildozer android debug --verbose
-          fi
+          buildozer android debug --verbose
 
       - name: Upload APK
-        if: success()
         uses: actions/upload-artifact@v4
         with:
           name: CaRT-debug.apk
           path: bin/*.apk
-
-      - name: Upload Build Logs (if build failed)
-        if: failure()
-        uses: actions/upload-artifact@v4
-        with:
-          name: buildozer-log
-          path: .buildozer/android/platform/build-armeabi-v7a/build.log

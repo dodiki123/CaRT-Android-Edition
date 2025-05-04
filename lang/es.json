@@ -1,0 +1,26 @@
+{
+    "check_title": "Teorema de Pitágoras",
+    "side_a": "Lado a",
+    "side_b": "Lado b",
+    "side_c": "Lado c (hipotenusa)",
+    "check": "Comprobar",
+    "invalid": "Por favor, ingresa números válidos.",
+    "negative": "Los lados deben ser números positivos.",
+    "not_right": "Este no es un triángulo rectángulo. Fórmula: a² + b² = c²",
+    "right": "¡Este es un triángulo rectángulo! Fórmula: a² + b² = c²",
+    "history": "Historial",
+    "clear_history": "Limpiar historial",
+    "save_history": "Guardar historial",
+    "settings": "Configuraciones",
+    "switch_theme": "Tema",
+    "change_lang": "Idioma",
+    "visit_site": "Visitar sitio web",
+    "app_version": "Versión de la app: 1.0",
+    "launch_startup": "Iniciar con el sistema operativo",
+    "about": "Acerca de la app",
+    "about_info": "Este programa te permite verificar si un triángulo es rectángulo usando el teorema de Pitágoras. Simplemente ingresa los tres lados del triángulo y el programa determinará automáticamente si satisfacen la fórmula a² + b² = c². Esta es una herramienta útil para estudiantes, maestros y cualquiera que trabaje con geometría.",
+    "author": "Autor: Aktirf",
+    "triangle_formula": "Fórmula: a² + b² = c²",
+    "solution": "Solución: a² + b² = {a2} + {b2} = {sum}, c² = {c2}"
+  }
+  

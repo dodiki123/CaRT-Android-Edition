@@ -1,0 +1,26 @@
+{
+    "check_title": "Théorème de Pythagore",
+    "side_a": "Côté a",
+    "side_b": "Côté b",
+    "side_c": "Côté c (hypoténuse)",
+    "check": "Vérifier",
+    "invalid": "Veuillez entrer des nombres valides.",
+    "negative": "Les côtés doivent être des nombres positifs.",
+    "not_right": "Ce n'est pas un triangle rectangle. Formule: a² + b² = c²",
+    "right": "C'est un triangle rectangle ! Formule: a² + b² = c²",
+    "history": "Historique",
+    "clear_history": "Effacer l'historique",
+    "save_history": "Enregistrer l'historique",
+    "settings": "Paramètres",
+    "switch_theme": "Thème",
+    "change_lang": "Langue",
+    "visit_site": "Visiter le site",
+    "app_version": "Version de l'application: 1.0",
+    "launch_startup": "Démarrer avec le système",
+    "about": "À propos de l'application",
+    "about_info": "Ce programme vous permet de vérifier si un triangle est rectangle en utilisant le théorème de Pythagore. Il vous suffit d'entrer les trois côtés du triangle et le programme déterminera automatiquement si ils satisfont à la formule a² + b² = c². C'est un outil utile pour les étudiants, les enseignants et toute personne travaillant avec la géométrie.",
+    "author": "Auteur: Aktirf",
+    "triangle_formula": "Formule: a² + b² = c²",
+    "solution": "Solution: a² + b² = {a2} + {b2} = {sum}, c² = {c2}"
+  }
+  

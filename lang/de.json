@@ -1,0 +1,26 @@
+{
+    "check_title": "Pythagoreisches Theorem",
+    "side_a": "Seite a",
+    "side_b": "Seite b",
+    "side_c": "Seite c (Hypotenuse)",
+    "check": "Prüfen",
+    "invalid": "Bitte geben Sie gültige Zahlen ein.",
+    "negative": "Die Seiten müssen positive Zahlen sein.",
+    "not_right": "Dies ist kein rechtwinkliges Dreieck. Formel: a² + b² = c²",
+    "right": "Dies ist ein rechtwinkliges Dreieck! Formel: a² + b² = c²",
+    "history": "Verlauf",
+    "clear_history": "Verlauf löschen",
+    "save_history": "Verlauf speichern",
+    "settings": "Einstellungen",
+    "switch_theme": "Thema",
+    "change_lang": "Sprache",
+    "visit_site": "Webseite besuchen",
+    "app_version": "App-Version: 1.0",
+    "launch_startup": "Mit Betriebssystem starten",
+    "about": "Über die App",
+    "about_info": "Dieses Programm ermöglicht es dir, zu überprüfen, ob ein Dreieck rechtwinklig ist, indem es den Satz des Pythagoras verwendet. Gib einfach die drei Seiten des Dreiecks ein, und das Programm bestimmt automatisch, ob sie der Formel a² + b² = c² entsprechen. Dies ist ein nützliches Werkzeug für Schüler, Lehrer und alle, die mit Geometrie arbeiten.",
+    "author": "Autor: Aktirf",
+    "triangle_formula": "Formel: a² + b² = c²",
+    "solution": "Lösung: a² + b² = {a2} + {b2} = {sum}, c² = {c2}"
+  }
+  

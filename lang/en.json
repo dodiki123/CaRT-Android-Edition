@@ -1,0 +1,26 @@
+{
+    "check_title": "Pythagorean Theorem",
+    "side_a": "Side a",
+    "side_b": "Side b",
+    "side_c": "Side c (hypotenuse)",
+    "check": "Check",
+    "invalid": "Please enter valid numbers.",
+    "negative": "Sides must be positive numbers.",
+    "not_right": "This is not a right triangle. Formula: a² + b² = c²",
+    "right": "This is a right triangle! Formula: a² + b² = c²",
+    "history": "History",
+    "clear_history": "Clear history",
+    "save_history": "Save history",
+    "settings": "Settings",
+    "switch_theme": "Theme",
+    "change_lang": "Language",
+    "visit_site": "Visit website",
+    "app_version": "App version: 1.0",
+    "launch_startup": "Launch with OS",
+    "about": "About",
+    "about_info": "This program allows you to check whether a triangle is right-angled using the Pythagorean theorem. Simply enter the three sides of the triangle and the program will automatically determine whether they satisfy the formula a² + b² = c². This is a handy math checker that can be useful for students, teachers, and anyone working with geometry.",
+    "author": "Author: Aktirf",
+    "triangle_formula": "Formula: a² + b² = c²",
+    "solution": "Solution: a² + b² = {a2} + {b2} = {sum}, c² = {c2}"
+  }
+  

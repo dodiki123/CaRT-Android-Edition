@@ -44,9 +44,7 @@ jobs:
 
           # Обновляем PATH
           export PATH=$PATH:$HOME/android-sdk/cmdline-tools/latest/bin
-
-          # Проверяем наличие sdkmanager
-          ls -l "$HOME/android-sdk/cmdline-tools/latest/bin/sdkmanager"
+          ls -l "$HOME/android-sdk/cmdline-tools/latest/bin/sdkmanager"  # Проверяем доступность sdkmanager
 
           # Устанавливаем необходимые пакеты через sdkmanager
           yes | "$HOME/android-sdk/cmdline-tools/latest/bin/sdkmanager" --sdk_root="$HOME/android-sdk" \

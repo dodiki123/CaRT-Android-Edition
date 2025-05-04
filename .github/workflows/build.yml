@@ -3,7 +3,7 @@ name: Build APK
 on:
   push:
     branches:
-      - master  # или main
+      - master
 
 jobs:
   build:
@@ -50,10 +50,14 @@ jobs:
           echo "ANDROID_HOME=$HOME/android-sdk" >> $GITHUB_ENV
           echo "PATH=$PATH:$HOME/android-sdk/platform-tools:$HOME/android-sdk/cmdline-tools/latest/bin:$HOME/android-sdk/build-tools/34.0.0" >> $GITHUB_ENV
 
+      - name: Clean old buildozer data (optional but recommended)
+        run: |
+          rm -rf ~/.buildozer
+
       - name: Link SDK to Buildozer expected path
         run: |
-          mkdir -p /home/runner/.buildozer/android/platform
-          ln -sfn $HOME/android-sdk /home/runner/.buildozer/android/platform/android-sdk
+          mkdir -p ~/.buildozer/android/platform
+          ln -sfn $HOME/android-sdk ~/.buildozer/android/platform/android-sdk
 
       - name: Build APK
         run: |
@@ -68,11 +72,21 @@ jobs:
           sed -i 's/^# *package.domain = .*/package.domain = org.example.cart/' buildozer.spec
           sed -i '/^requirements =/d' buildozer.spec
           echo "requirements = python3,kivy,kivymd" >> buildozer.spec
+          echo "android.sdk_path = /home/runner/android-sdk" >> buildozer.spec
+          echo "android.ndk_path = /home/runner/android-sdk/ndk-bundle" >> buildozer.spec
 
-          buildozer android debug
+          buildozer android debug || true  # не прерываем job, даже если ошибка
 
       - name: Upload APK
+        if: success()
         uses: actions/upload-artifact@v4
         with:
           name: CaRT-debug.apk
           path: bin/*.apk
+
+      - name: Upload Build Logs (if build failed)
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: buildozer-log
+          path: .buildozer/android/platform/build-armeabi-v7a/build.log

@@ -29,19 +29,21 @@ jobs:
         run: |
           # Устанавливаем Android SDK
           mkdir -p "$HOME/android-sdk/cmdline-tools"
-          cd "$HOME/android-sdk/cmdline-tools"
-          wget https://dl.google.com/android/repository/commandlinetools-linux-8512546_latest.zip -O tools.zip
-          unzip tools.zip
-          rm tools.zip
+          cd "$HOME/android-sdk"
+          
+          # Скачиваем SDK tools
+          wget https://dl.google.com/android/repository/commandlinetools-linux-8512546_latest.zip -O cmdline-tools.zip
+          unzip cmdline-tools.zip -d cmdline-tools
+          rm cmdline-tools.zip
 
           # Устанавливаем необходимые компоненты через sdkmanager
-          yes | "$HOME/android-sdk/cmdline-tools/bin/sdkmanager" --sdk_root="$HOME/android-sdk" \
+          yes | "$HOME/android-sdk/cmdline-tools/latest/bin/sdkmanager" --sdk_root="$HOME/android-sdk" \
             "platform-tools" "platforms;android-31" "build-tools;34.0.0" "tools"
 
       - name: Set environment variables
         run: |
           echo "ANDROID_HOME=$HOME/android-sdk" >> $GITHUB_ENV
-          echo "PATH=$PATH:$HOME/android-sdk/platform-tools:$HOME/android-sdk/cmdline-tools/bin" >> $GITHUB_ENV
+          echo "PATH=$PATH:$HOME/android-sdk/platform-tools:$HOME/android-sdk/cmdline-tools/latest/bin" >> $GITHUB_ENV
 
       - name: Build APK
         run: |

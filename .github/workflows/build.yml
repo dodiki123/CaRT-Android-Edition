@@ -27,19 +27,28 @@ jobs:
 
       - name: Install Android SDK and AIDL
         run: |
+          # Устанавливаем Android SDK в домашнюю директорию
           mkdir -p "$HOME/android-sdk/cmdline-tools"
+
           cd "$HOME/android-sdk"
 
+          # Скачиваем и распаковываем командные инструменты SDK
           wget https://dl.google.com/android/repository/commandlinetools-linux-8512546_latest.zip -O cmdline-tools.zip
           unzip cmdline-tools.zip -d cmdline-tools-temp
           rm cmdline-tools.zip
 
+          # Переименовываем в нужную структуру
           mkdir -p "$HOME/android-sdk/cmdline-tools/latest"
           mv cmdline-tools-temp/cmdline-tools/* "$HOME/android-sdk/cmdline-tools/latest"
           rm -rf cmdline-tools-temp
 
+          # Обновляем PATH
           export PATH=$PATH:$HOME/android-sdk/cmdline-tools/latest/bin
 
+          # Проверяем наличие sdkmanager
+          ls -l "$HOME/android-sdk/cmdline-tools/latest/bin/sdkmanager"
+
+          # Устанавливаем необходимые пакеты через sdkmanager
           yes | "$HOME/android-sdk/cmdline-tools/latest/bin/sdkmanager" --sdk_root="$HOME/android-sdk" \
             "platform-tools" \
             "platforms;android-31" \
@@ -48,7 +57,7 @@ jobs:
       - name: Set environment variables
         run: |
           echo "ANDROID_HOME=$HOME/android-sdk" >> $GITHUB_ENV
-          echo "PATH=$PATH:$HOME/android-sdk/platform-tools:$HOME/android-sdk/cmdline-tools/latest/bin:$HOME/android-sdk/build-tools/34.0.0" >> $GITHUB_ENV
+          echo "PATH=$PATH:$HOME/android-sdk/platform-tools:$HOME/android-sdk/cmdline-tools/latest/bin" >> $GITHUB_ENV
 
       - name: Clean old buildozer data (optional but recommended)
         run: |

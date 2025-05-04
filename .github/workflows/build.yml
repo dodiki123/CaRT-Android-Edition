@@ -3,7 +3,7 @@ name: Build APK
 on:
   push:
     branches:
-      - master  # или 'main', если у тебя другая ветка
+      - master  # или main, если у тебя другая ветка
 
 jobs:
   build:
@@ -30,30 +30,28 @@ jobs:
           mkdir -p "$HOME/android-sdk/cmdline-tools"
           cd "$HOME/android-sdk"
 
-          # Скачиваем SDK
           wget https://dl.google.com/android/repository/commandlinetools-linux-8512546_latest.zip -O cmdline-tools.zip
           unzip cmdline-tools.zip -d cmdline-tools-temp
           rm cmdline-tools.zip
 
-          # Перемещаем SDK в нужную структуру
           mkdir -p "$HOME/android-sdk/cmdline-tools/latest"
           mv cmdline-tools-temp/cmdline-tools/* "$HOME/android-sdk/cmdline-tools/latest"
           rm -rf cmdline-tools-temp
 
-          # Добавляем sdkmanager в PATH
           export PATH=$PATH:$HOME/android-sdk/cmdline-tools/latest/bin
 
-          # Проверим, что sdkmanager доступен
-          ls -l "$HOME/android-sdk/cmdline-tools/latest/bin"
-
-          # Устанавливаем необходимые компоненты
           yes | "$HOME/android-sdk/cmdline-tools/latest/bin/sdkmanager" --sdk_root="$HOME/android-sdk" \
-            "platform-tools" "platforms;android-31" "build-tools;34.0.0" "tools"
+            "platform-tools" \
+            "platforms;android-31" \
+            "build-tools;34.0.0"
+
+          echo "AIDL path:"
+          find "$HOME/android-sdk" -name aidl || true
 
       - name: Set environment variables
         run: |
           echo "ANDROID_HOME=$HOME/android-sdk" >> $GITHUB_ENV
-          echo "PATH=$PATH:$HOME/android-sdk/platform-tools:$HOME/android-sdk/cmdline-tools/latest/bin" >> $GITHUB_ENV
+          echo "PATH=$PATH:$HOME/android-sdk/platform-tools:$HOME/android-sdk/cmdline-tools/latest/bin:$HOME/android-sdk/build-tools/34.0.0" >> $GITHUB_ENV
 
       - name: Build APK
         run: |

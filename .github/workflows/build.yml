@@ -75,7 +75,18 @@ jobs:
           echo "android.sdk_path = /home/runner/android-sdk" >> buildozer.spec
           echo "android.ndk_path = /home/runner/android-sdk/ndk-bundle" >> buildozer.spec
 
-          buildozer android debug || true  # не прерываем job, даже если ошибка
+          buildozer android debug --verbose || true
+
+      - name: Find APK file
+        run: |
+          find . -name "*.apk" || echo "APK not found."
+
+      - name: Force re-build APK if not found
+        run: |
+          if [ ! -f bin/*.apk ]; then
+            echo "APK not found, forcing rebuild..."
+            buildozer android debug --verbose
+          fi
 
       - name: Upload APK
         if: success()

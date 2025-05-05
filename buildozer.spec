@@ -1,5 +1,4 @@
 [app]
-
 title = CaRT
 package.name = CaRT
 package.domain = org.example
@@ -15,19 +14,17 @@ icon.filename = icon.png
 orientation = portrait
 fullscreen = 1
 
-# Запобігає проблемам із кодировкою та перезапуском
 android.entrypoint = org.kivy.android.PythonActivity
 android.minapi = 24
 android.target = 34
 android.sdk = 34
 android.ndk = 25b
-android.ndk_path = 
+android.ndk_path = /home/runner/android-sdk/ndk/25.1.8937393
+android.sdk_path = /home/runner/android-sdk
 android.gradle_dependencies = com.android.support:appcompat-v7:28.0.0
 
-# Права доступу
 android.permissions = INTERNET,WRITE_EXTERNAL_STORAGE,READ_EXTERNAL_STORAGE
 
-# Інші параметри
 log_level = 2
 warn_on_root = 1
 
@@ -35,4 +32,5 @@ warn_on_root = 1
 log_level = 2
 warn_on_root = 1
 arch = armeabi-v7a
-p4a.branch = develop
+# Удали или закомментируй, если нет веской причины использовать ветку develop
+# p4a.branch = develop

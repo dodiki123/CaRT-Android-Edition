@@ -1,12 +1,11 @@
-name: Build APK
+name: Build APK (Local)
 
 on:
-  push:
-    branches:
-      - master
+  workflow_dispatch:
 
 jobs:
   build:
+    name: Build APK
     runs-on: ubuntu-latest
 
     steps:
@@ -16,79 +15,45 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
-          python-version: '3.10'
+          python-version: 3.10
 
-      - name: Install dependencies
+      - name: Install system dependencies
         run: |
           sudo apt update
-          sudo apt install -y python3-pip zip unzip openjdk-17-jdk wget python3-dev python3-venv
+          sudo apt install -y zip unzip openjdk-17-jdk python3-pip python3-setuptools git wget \
+            build-essential ccache libffi-dev libssl-dev libjpeg-dev zlib1g-dev \
+            libsqlite3-dev libpng-dev libfreetype6-dev
+
+      - name: Install Buildozer
+        run: |
           pip install --upgrade pip
-          pip install buildozer cython virtualenv
+          pip install buildozer
+          buildozer init
 
-      - name: Install Android SDK and AIDL
+      - name: Create Android SDK/NDK directories
         run: |
-          mkdir -p "$HOME/android-sdk/cmdline-tools"
-          cd "$HOME/android-sdk"
-          wget https://dl.google.com/android/repository/commandlinetools-linux-8512546_latest.zip -O cmdline-tools.zip
-          unzip cmdline-tools.zip -d cmdline-tools-temp
-          rm cmdline-tools.zip
-          mkdir -p "$HOME/android-sdk/cmdline-tools/latest"
-          mv cmdline-tools-temp/cmdline-tools/* "$HOME/android-sdk/cmdline-tools/latest"
-          rm -rf cmdline-tools-temp
-          echo "y" | "$HOME/android-sdk/cmdline-tools/latest/bin/sdkmanager" --sdk_root="$HOME/android-sdk" \
-            "platform-tools" \
-            "platforms;android-31" \
-            "build-tools;34.0.0" \
-            "ndk;25.1.8937393"
+          mkdir -p /home/runner/android-sdk/ndk/25.1.8937393
+          mkdir -p /home/runner/android-sdk/cmdline-tools/latest
+          mkdir -p /home/runner/.buildozer
 
-      - name: Set environment variables
+      - name: Download Android SDK command line tools
         run: |
-          echo "ANDROID_HOME=$HOME/android-sdk" >> $GITHUB_ENV
-          echo "PATH=$PATH:$HOME/android-sdk/platform-tools:$HOME/android-sdk/cmdline-tools/latest/bin:$HOME/android-sdk/build-tools/34.0.0" >> $GITHUB_ENV
+          wget https://dl.google.com/android/repository/commandlinetools-linux-10406996_latest.zip -O cmdline-tools.zip
+          unzip -q cmdline-tools.zip -d /home/runner/android-sdk/cmdline-tools
+          mv /home/runner/android-sdk/cmdline-tools/cmdline-tools /home/runner/android-sdk/cmdline-tools/latest
+          yes | /home/runner/android-sdk/cmdline-tools/latest/bin/sdkmanager --sdk_root=/home/runner/android-sdk \
+            "platform-tools" "platforms;android-34" "build-tools;34.0.0" "ndk;25.1.8937393"
 
-      - name: Clean old buildozer data
-        run: rm -rf ~/.buildozer
-
-      - name: Link SDK to Buildozer expected path
+      - name: Pre-Build Test
         run: |
-          mkdir -p ~/.buildozer/android/platform
-          ln -sfn $HOME/android-sdk ~/.buildozer/android/platform/android-sdk
+          python3 -m compileall .
 
-      - name: Fix sdkmanager path for Buildozer
+      - name: Build APK with Buildozer
         run: |
-          mkdir -p ~/.buildozer/android/platform/android-sdk/tools/bin
-          ln -sf $HOME/android-sdk/cmdline-tools/latest/bin/sdkmanager ~/.buildozer/android/platform/android-sdk/tools/bin/sdkmanager
-
-      - name: Build APK
-        run: |
-          if [ ! -f buildozer.spec ]; then
-            buildozer init
-          fi
-
-          sed -i 's/^# *source.include_exts = .*/source.include_exts = py,png,jpg,kv,atlas/' buildozer.spec
-          sed -i 's/^# *log_level = .*/log_level = 2/' buildozer.spec
-          sed -i 's/^# *android.permissions = .*/android.permissions = INTERNET/' buildozer.spec
-          sed -i 's/^# *package.name = .*/package.name = CaRT/' buildozer.spec
-          sed -i 's/^# *package.domain = .*/package.domain = org.example.cart/' buildozer.spec
-          sed -i '/^requirements =/d' buildozer.spec
-          echo "requirements = python3,kivy==2.3.0,kivymd" >> buildozer.spec
-          echo "android.sdk_path = /home/runner/android-sdk" >> buildozer.spec
-          echo "android.ndk_path = /home/runner/android-sdk/ndk/25.1.8937393" >> buildozer.spec
-          echo "# python3 = (autodetect)" >> buildozer.spec
-
-          pip install "kivy==2.3.0"
           buildozer android debug
 
-      - name: Upload APK
-        if: success()
+      - name: Upload APK artifact
         uses: actions/upload-artifact@v4
         with:
-          name: CaRT-debug.apk
+          name: CaRT-debug-apk
           path: bin/*.apk
-
-      - name: Upload Build Logs (if build failed)
-        if: failure()
-        uses: actions/upload-artifact@v4
-        with:
-          name: buildozer-log
-          path: .buildozer/android/platform/build-armeabi-v7a/build.log

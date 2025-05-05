@@ -21,9 +21,9 @@ jobs:
       - name: Install dependencies
         run: |
           sudo apt update
-          sudo apt install -y python3-pip zip unzip openjdk-17-jdk wget
+          sudo apt install -y python3-pip zip unzip openjdk-17-jdk wget python3-dev python3-venv
           pip install --upgrade pip
-          pip install buildozer cython
+          pip install buildozer cython virtualenv
 
       - name: Install Android SDK and AIDL
         run: |
@@ -71,15 +71,12 @@ jobs:
           sed -i 's/^# *package.name = .*/package.name = CaRT/' buildozer.spec
           sed -i 's/^# *package.domain = .*/package.domain = org.example.cart/' buildozer.spec
           sed -i '/^requirements =/d' buildozer.spec
-          echo "requirements = python3,kivy,kivymd" >> buildozer.spec
-
-          # додати правильний шлях до Python 3.10
-          echo "python3 = /opt/hostedtoolcache/Python/3.10.*/x64/bin/python3" >> buildozer.spec
-
-          # вручну вказати SDK/NDK шляхи
+          echo "requirements = python3,kivy==2.3.0,kivymd" >> buildozer.spec
           echo "android.sdk_path = /home/runner/android-sdk" >> buildozer.spec
           echo "android.ndk_path = /home/runner/android-sdk/ndk/25.1.8937393" >> buildozer.spec
+          echo "# python3 = (autodetect)" >> buildozer.spec
 
+          pip install "kivy==2.3.0"
           buildozer android debug
 
       - name: Upload APK

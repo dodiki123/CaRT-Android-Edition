@@ -25,46 +25,46 @@ jobs:
           pip install --upgrade pip
           pip install buildozer cython
 
-      - name: Install Android SDK
+      - name: Install Android SDK and AIDL
         run: |
           mkdir -p "$HOME/android-sdk/cmdline-tools"
-
           cd "$HOME/android-sdk"
           wget https://dl.google.com/android/repository/commandlinetools-linux-8512546_latest.zip -O cmdline-tools.zip
           unzip cmdline-tools.zip -d cmdline-tools-temp
           rm cmdline-tools.zip
-
           mkdir -p "$HOME/android-sdk/cmdline-tools/latest"
           mv cmdline-tools-temp/cmdline-tools/* "$HOME/android-sdk/cmdline-tools/latest"
           rm -rf cmdline-tools-temp
-
-          export PATH=$HOME/android-sdk/cmdline-tools/latest/bin:$PATH
+          export PATH=$PATH:$HOME/android-sdk/cmdline-tools/latest/bin
           yes | "$HOME/android-sdk/cmdline-tools/latest/bin/sdkmanager" --sdk_root="$HOME/android-sdk" \
             "platform-tools" \
             "platforms;android-31" \
             "build-tools;34.0.0"
 
-      - name: 🔧 Fix sdkmanager path for Buildozer
-        run: |
-          mkdir -p "$HOME/android-sdk/tools"
-          ln -s "$HOME/android-sdk/cmdline-tools/latest" "$HOME/android-sdk/tools/bin"
-
       - name: Set environment variables
         run: |
           echo "ANDROID_HOME=$HOME/android-sdk" >> $GITHUB_ENV
-          echo "PATH=$PATH:$HOME/android-sdk/platform-tools:$HOME/android-sdk/tools/bin" >> $GITHUB_ENV
+          echo "PATH=$PATH:$HOME/android-sdk/platform-tools:$HOME/android-sdk/cmdline-tools/latest/bin:$HOME/android-sdk/build-tools/34.0.0" >> $GITHUB_ENV
+
+      - name: Clean old buildozer data
+        run: |
+          rm -rf ~/.buildozer
 
       - name: Link SDK to Buildozer expected path
         run: |
           mkdir -p ~/.buildozer/android/platform
           ln -sfn $HOME/android-sdk ~/.buildozer/android/platform/android-sdk
 
+      - name: Fix sdkmanager path for Buildozer
+        run: |
+          mkdir -p ~/.buildozer/android/platform/android-sdk/tools/bin
+          ln -sf $HOME/android-sdk/cmdline-tools/latest/bin/sdkmanager ~/.buildozer/android/platform/android-sdk/tools/bin/sdkmanager
+
       - name: Build APK
         run: |
           if [ ! -f buildozer.spec ]; then
             buildozer init
           fi
-
           sed -i 's/^# *source.include_exts = .*/source.include_exts = py,png,jpg,kv,atlas/' buildozer.spec
           sed -i 's/^# *log_level = .*/log_level = 2/' buildozer.spec
           sed -i 's/^# *android.permissions = .*/android.permissions = INTERNET/' buildozer.spec
@@ -72,11 +72,20 @@ jobs:
           sed -i 's/^# *package.domain = .*/package.domain = org.example.cart/' buildozer.spec
           sed -i '/^requirements =/d' buildozer.spec
           echo "requirements = python3,kivy,kivymd" >> buildozer.spec
-
-          buildozer android debug --verbose
+          echo "android.sdk_path = /home/runner/android-sdk" >> buildozer.spec
+          echo "android.ndk_path = /home/runner/android-sdk/ndk-bundle" >> buildozer.spec
+          buildozer android debug
 
       - name: Upload APK
+        if: success()
         uses: actions/upload-artifact@v4
         with:
           name: CaRT-debug.apk
           path: bin/*.apk
+
+      - name: Upload Build Logs (if build failed)
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: buildozer-log
+          path: .buildozer/android/platform/build-armeabi-v7a/build.log
